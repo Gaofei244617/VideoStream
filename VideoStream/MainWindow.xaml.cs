@@ -12,6 +12,12 @@ namespace VideoStream
             this.VideoTable.ItemsSource = items;
 
             items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
+            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
+            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
+            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
+            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
+            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
+            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
         }
 
         // 推流button

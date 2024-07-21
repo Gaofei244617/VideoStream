@@ -7,17 +7,24 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Video Stream"
-        Height="450"
+        Height="550"
         Width="800">
+
+    <Window.Resources>
+        <!-- DataGrid 标题栏字体加粗 -->
+        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource DataGridColumnHeaderStyle}">
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="22" />
+            <RowDefinition Height="25" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- 菜单栏 -->
-        <Menu x:Name="menu" Height="22" VerticalAlignment="Top">
+        <Menu x:Name="menu" VerticalAlignment="Top" >
             <MenuItem Header="操作">
                 <MenuItem Header="全部开始" Click="PushAll_Click" />
                 <MenuItem Header="全部停止" />
@@ -35,10 +42,9 @@
 
         <!-- 表格 -->
         <DataGrid Name="VideoTable"
-                  AlternationCount="2"
                   AutoGenerateColumns="False"
+                  ColumnHeaderHeight="35"
                   CanUserAddRows="False"
-                  Style="{StaticResource MyDataGridStyle}"
                   Grid.Row="1"
                   Margin="0"
                   AllowDrop="True"
@@ -62,16 +68,15 @@
             <!-- 表格每一列数据 -->
             <DataGrid.Columns>
                 <!-- 序号 -->
-                <DataGridTextColumn Header="序号" Width="50" IsReadOnly="True" 
+                <DataGridTextColumn Header="序号" Width="50" IsReadOnly="True"
                                     Binding="{Binding ID, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- 视频 -->
                 <DataGridTextColumn Header="视频" Width="*"
-                                    CellStyle="{StaticResource MyCellTextLeftStyle}"
                                     Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- 流媒体协议: RTSP/RTMP -->
-                <DataGridComboBoxColumn Header="流媒体" Width="80" IsReadOnly="False" CellStyle="{StaticResource MyCellFillStyle}">
+                <DataGridComboBoxColumn Header="流媒体" Width="100" IsReadOnly="False">
                     <DataGridComboBoxColumn.ElementStyle>
                         <Style TargetType="ComboBox">
                             <Setter Property="ItemsSource" Value="{Binding Source={StaticResource ResourceKey=ProtoResource}}" />
@@ -91,7 +96,7 @@
                 </DataGridComboBoxColumn>
 
                 <!-- 传输协议: TCP/IP -->
-                <DataGridComboBoxColumn Header="传输" Width="80" IsReadOnly="False" CellStyle="{StaticResource MyCellFillStyle}">
+                <DataGridComboBoxColumn Header="传输" Width="90" IsReadOnly="False">
                     <DataGridComboBoxColumn.ElementStyle>
                         <Style TargetType="ComboBox">
                             <Setter Property="ItemsSource" Value="{Binding Source={StaticResource ResourceKey=TransResource}}" />
@@ -111,23 +116,23 @@
                 </DataGridComboBoxColumn>
 
                 <!-- 状态 -->
-                <DataGridTextColumn Header="状态" Width="100" IsReadOnly="True" 
+                <DataGridTextColumn Header="状态" Width="100" IsReadOnly="True"
                                     Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!--推流/STOP -->
-                <DataGridTemplateColumn Header="操作" Width="80" CellStyle="{StaticResource MyCellFillStyle}">
+                <DataGridTemplateColumn Header="操作" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="推流" Click="VideoStream_Click" />
+                            <Button Content="推流" HorizontalAlignment="Stretch" Click="VideoStream_Click" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
                 <!-- 删除 -->
-                <DataGridTemplateColumn Header="删除" Width="80" CellStyle="{StaticResource MyCellFillStyle}">
+                <DataGridTemplateColumn Header="删除" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="删除" Foreground="Red" Click="Delete_Click" />
+                            <Button Content="删除" Foreground="Red" HorizontalAlignment="Stretch" Click="Delete_Click" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
