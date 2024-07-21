@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -10,14 +11,6 @@ namespace VideoStream
         {
             InitializeComponent();
             this.VideoTable.ItemsSource = items;
-
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
-            items.Add(new TabItem() { ID = 1, Video = "John Doe", Protocol = ProtoEnum.RTSP, State = StateEnum.Init });
         }
 
         // 推流button
@@ -26,7 +19,7 @@ namespace VideoStream
             if (sender is Button button)
             {
                 // 获取当前行数据
-                if (button.DataContext is TabItem item)
+                if (button.DataContext is StreamItem item)
                 {
                     StateEnum state = item.State;
                     if (state == StateEnum.Init)
@@ -54,9 +47,15 @@ namespace VideoStream
             if (sender is Button button)
             {
                 // 获取当前行数据
-                if (button.DataContext is TabItem item)
+                if (button.DataContext is StreamItem item)
                 {
                     items.Remove(item);
+
+                    // update index
+                    for (int i = 0; i < items.Count(); i++)
+                    {
+                        items[i].ID = i + 1;
+                    }
                 }
             }
         }
@@ -74,14 +73,17 @@ namespace VideoStream
             {
                 foreach (var file in files)
                 {
-                    // 文件名
-                    VideoInfo info = (new VideoProbe(file)).info();
-                    MessageBox.Show(file);
+                    StreamItem item = new StreamItem();
+                    item.Video = Path.GetFileName(file); ;
+                    item.Info = (new VideoProbe(file)).info();
+                    item.ID = items.Count() + 1;
+
+                    items.Add(item);
                 }
             }
         }
 
         // DataGrid item source
-        private ObservableCollection<TabItem> items = new ObservableCollection<TabItem>();
+        private ObservableCollection<StreamItem> items = new ObservableCollection<StreamItem>();
     }
 }

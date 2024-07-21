@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Video Stream"
         Height="550"
-        Width="800">
+        Width="900">
 
     <Window.Resources>
         <!-- DataGrid 标题栏字体加粗 -->
@@ -87,8 +87,12 @@
                 <DataGridTextColumn Header="视频" Width="*"
                                     Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}" />
 
+                <!-- URL -->
+                <DataGridTextColumn Header="URL" Width="1.2*"
+                                    Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+
                 <!-- 流媒体协议: RTSP/RTMP -->
-                <DataGridComboBoxColumn Header="流媒体" Width="100" IsReadOnly="False">
+                <DataGridComboBoxColumn Header="流媒体" Width="75" IsReadOnly="False">
                     <DataGridComboBoxColumn.ElementStyle>
                         <Style TargetType="ComboBox">
                             <Setter Property="ItemsSource" Value="{Binding Source={StaticResource ResourceKey=ProtoResource}}" />
@@ -108,7 +112,7 @@
                 </DataGridComboBoxColumn>
 
                 <!-- 传输协议: TCP/IP -->
-                <DataGridComboBoxColumn Header="传输" Width="90" IsReadOnly="False">
+                <DataGridComboBoxColumn Header="传输" Width="70" IsReadOnly="False">
                     <DataGridComboBoxColumn.ElementStyle>
                         <Style TargetType="ComboBox">
                             <Setter Property="ItemsSource" Value="{Binding Source={StaticResource ResourceKey=TransResource}}" />
@@ -128,7 +132,7 @@
                 </DataGridComboBoxColumn>
 
                 <!-- 状态 -->
-                <DataGridTextColumn Header="状态" Width="100" IsReadOnly="True"
+                <DataGridTextColumn Header="状态" Width="70" IsReadOnly="True"
                                     Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!--推流/STOP -->

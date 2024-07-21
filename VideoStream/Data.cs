@@ -24,15 +24,17 @@ namespace VideoStream
         Stop
     }
 
-    public class TabItem : INotifyPropertyChanged
+    public class StreamItem : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private int _id;                       //
-        private string? _video;                //
-        private ProtoEnum _protocol;           //
-        private TransEnum _transProto;         //
-        private StateEnum _state;              //
+        private int _id = 0;                                   //
+        private string? _video;                                //
+        private string? _url = "null";                         //
+        private ProtoEnum _protocol = ProtoEnum.RTSP;          //
+        private TransEnum _transProto = TransEnum.TCP;         //
+        private StateEnum _state = StateEnum.Init;             //
+        private VideoInfo? _info;                              //
 
         public int ID
         {
@@ -51,6 +53,16 @@ namespace VideoStream
             {
                 _video = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Video)));
+            }
+        }
+
+        public string? URL
+        {
+            get => _url;
+            set
+            {
+                _url = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(URL)));
             }
         }
 
@@ -81,6 +93,16 @@ namespace VideoStream
             {
                 _state = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(State)));
+            }
+        }
+
+        public VideoInfo Info
+        {
+            get => _info;
+            set
+            {
+                _info = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Info)));
             }
         }
     }
