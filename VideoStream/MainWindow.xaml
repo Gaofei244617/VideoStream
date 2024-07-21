@@ -24,11 +24,23 @@
         </Grid.RowDefinitions>
 
         <!-- 菜单栏 -->
-        <Menu x:Name="menu" VerticalAlignment="Top" >
+        <Menu x:Name="menu" VerticalAlignment="Top">
             <MenuItem Header="操作">
-                <MenuItem Header="全部开始" Click="PushAll_Click" />
-                <MenuItem Header="全部停止" />
-                <MenuItem Header="拉流" />
+                <MenuItem Header="全部开始" Click="PushAll_Click">
+                    <MenuItem.Icon>
+                        <Image Source="icon/start.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="全部停止">
+                    <MenuItem.Icon>
+                        <Image Source="icon/stop.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="拉流">
+                    <MenuItem.Icon>
+                        <Image Source="icon/pull.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="配置">
                 <MenuItem Header="导入配置" />

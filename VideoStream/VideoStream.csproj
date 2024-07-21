@@ -17,4 +17,12 @@
     <PackageReference Include="HandyControl" Version="3.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="icon\export.png" />
+    <Resource Include="icon\import.png" />
+    <Resource Include="icon\pull.png" />
+    <Resource Include="icon\start.png" />
+    <Resource Include="icon\stop.png" />
+  </ItemGroup>
+
 </Project>
