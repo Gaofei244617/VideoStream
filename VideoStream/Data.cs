@@ -84,4 +84,22 @@ namespace VideoStream
             }
         }
     }
+
+    // 视频编码格式
+    public enum EncodeType
+    {
+        H264,
+        H265,
+        Other
+    }
+
+    public class VideoInfo
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public double FrameRate { get; set; }
+        public double Time { get; set; }
+
+        public EncodeType Encoder { get; set; }
+    }
 }

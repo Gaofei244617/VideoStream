@@ -75,6 +75,7 @@ namespace VideoStream
                 foreach (var file in files)
                 {
                     // 文件名
+                    VideoInfo info = (new VideoProbe(file)).info();
                     MessageBox.Show(file);
                 }
             }
