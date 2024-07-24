@@ -11,12 +11,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="icon\intro.png" />
+    <None Remove="icon\version.png" />
+    <None Remove="icon\video.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icon\intro.png" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="7.0.0" />
     <PackageReference Include="HandyControl" Version="3.5.1" />
+    <PackageReference Include="YamlDotNet" Version="16.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +36,8 @@
     <Resource Include="icon\pull.png" />
     <Resource Include="icon\start.png" />
     <Resource Include="icon\stop.png" />
+    <Resource Include="icon\version.png" />
+    <Resource Include="icon\video.png" />
   </ItemGroup>
 
 </Project>
