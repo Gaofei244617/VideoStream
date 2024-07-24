@@ -96,7 +96,7 @@ namespace VideoStream
             }
         }
 
-        public VideoInfo Info
+        public VideoInfo? Info
         {
             get => _info;
             set

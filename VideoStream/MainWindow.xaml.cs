@@ -1,7 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace VideoStream
 {
@@ -11,6 +15,22 @@ namespace VideoStream
         {
             InitializeComponent();
             this.VideoTable.ItemsSource = items;
+
+            // 获取本机IP
+            IPHostEntry ipEntry = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in ipEntry.AddressList)
+            {
+                // IPv4地址
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ips.Add(ip.ToString());
+                }
+            }
+
+            // 解析mediamtx配置文件
+            string content = File.ReadAllText("mediamtx.yml");
+            var deserializer = new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+            var yamlObject = deserializer.Deserialize<dynamic>(content);
         }
 
         // 推流button
@@ -85,5 +105,8 @@ namespace VideoStream
 
         // DataGrid item source
         private ObservableCollection<StreamItem> items = new ObservableCollection<StreamItem>();
+
+        // 本机IP
+        private ObservableCollection<string> ips = new ObservableCollection<string>();
     }
 }
