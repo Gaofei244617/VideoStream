@@ -3,8 +3,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VideoStream"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:VideoStream"
         mc:Ignorable="d"
         Title="Video Stream"
         Height="550"
@@ -111,6 +111,13 @@
                 <!-- URL -->
                 <DataGridTextColumn Header="URL" Width="1.2*"
                                     Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+
+                <!-- 本机IP -->
+                <DataGridComboBoxColumn x:Name="LocalIP" 
+                                        Header="本机IP" 
+                                        Width="110" 
+                                        IsReadOnly="False" 
+                                        SelectedItemBinding="{Binding Path=IP}"/>
 
                 <!-- 流媒体协议: RTSP/RTMP -->
                 <DataGridComboBoxColumn Header="流媒体" Width="75" IsReadOnly="False">

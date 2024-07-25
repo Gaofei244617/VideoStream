@@ -30,7 +30,8 @@ namespace VideoStream
 
         private int _id = 0;                                   //
         private string? _video;                                //
-        private string? _url = "null";                         //
+        private string? _url;                                  //
+        private string? _ip;                                   //
         private ProtoEnum _protocol = ProtoEnum.RTSP;          //
         private TransEnum _transProto = TransEnum.TCP;         //
         private StateEnum _state = StateEnum.Init;             //
@@ -63,6 +64,16 @@ namespace VideoStream
             {
                 _url = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(URL)));
+            }
+        }
+
+        public string? IP
+        {
+            get => _ip;
+            set
+            {
+                _ip = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IP)));
             }
         }
 

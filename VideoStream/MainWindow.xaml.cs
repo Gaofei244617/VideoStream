@@ -15,6 +15,7 @@ namespace VideoStream
         {
             InitializeComponent();
             this.VideoTable.ItemsSource = items;
+            this.LocalIP.ItemsSource = ips;
 
             // 获取本机IP
             IPHostEntry ipEntry = Dns.GetHostEntry(Dns.GetHostName());
@@ -100,6 +101,7 @@ namespace VideoStream
                     item.Video = Path.GetFileName(file); ;
                     item.Info = (new VideoProbe(file)).info();
                     item.ID = items.Count() + 1;
+                    item.IP = ips.Count() > 0 ? ips[0] : null;
 
                     items.Add(item);
                 }
