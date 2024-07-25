@@ -31,6 +31,9 @@ namespace VideoStream
             string content = File.ReadAllText("mediamtx.yml");
             var deserializer = new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
             var yamlObject = deserializer.Deserialize<dynamic>(content);
+
+            rtspPort = int.Parse(yamlObject["rtspAddress"].Split(':')[1]);
+            rtmpPort = int.Parse(yamlObject["rtmpAddress"].Split(':')[1]);
         }
 
         // 推流button
@@ -108,5 +111,8 @@ namespace VideoStream
 
         // 本机IP
         private ObservableCollection<string> ips = new ObservableCollection<string>();
+
+        private int rtspPort = 0;  // RTSP流端口
+        private int rtmpPort = 0;  // RTMP流端口
     }
 }
