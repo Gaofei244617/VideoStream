@@ -149,13 +149,27 @@ namespace VideoStream
         public string? GetStreamURL()
         { 
             string? url = null;
+            string validChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"; // URL中允许出现的字符
+
+            char[] chars = Path.GetFileNameWithoutExtension(_video)?.ToCharArray();
+            Random random = new Random();
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (!validChar.Contains(chars[i]))
+                {
+                    int n = random.Next(0, 27);
+                    chars[i] = validChar[n];
+                }
+            }
+            string path = new string(chars);
+
             if (_protocol == ProtoEnum.RTSP)
             {
-                url = "rtsp://" + _ip + ":" + RtspPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video)?.Replace(" ", "");
+                url = "rtsp://" + _ip + ":" + RtspPort.ToString() + "/" + path;
             }
             else if (_protocol == ProtoEnum.RTMP)
             {
-                url = "rtmp://" + _ip + ":" + RtmpPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video)?.Replace(" ", "");
+                url = "rtmp://" + _ip + ":" + RtmpPort.ToString() + "/" + path;
             }
 
             return url;
