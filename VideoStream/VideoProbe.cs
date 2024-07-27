@@ -11,6 +11,8 @@ namespace VideoStream
 
         public VideoProbe(string videoPath)
         {
+            _info.VideoPath = videoPath;
+
             int ret = -1;
 
             // 打开视频文件
@@ -73,7 +75,7 @@ namespace VideoStream
             // 视频时长(秒)
             long duration = pFormatContext->streams[videoStreamIndex]->duration;
             AVRational time_base = pFormatContext->streams[videoStreamIndex]->time_base;
-            _info.Time = duration * time_base.num / (double)time_base.den;
+            _info.Duration = duration * time_base.num / (double)time_base.den;
 
             // 关闭输入
             ffmpeg.avformat_close_input(&pFormatContext);

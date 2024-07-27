@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 
 namespace VideoStream
 {
@@ -36,6 +38,9 @@ namespace VideoStream
         private TransEnum _transProto = TransEnum.TCP;         //
         private StateEnum _state = StateEnum.Init;             //
         private VideoInfo? _info;                              //
+        private Process? _ffmpeg = null;                       //
+        public int RtspPort { set; get; }                      //
+        public int RtmpPort { set; get; }                      //
 
         public int ID
         {
@@ -53,6 +58,7 @@ namespace VideoStream
             set
             {
                 _video = value;
+                UpdateURL();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Video)));
             }
         }
@@ -73,6 +79,7 @@ namespace VideoStream
             set
             {
                 _ip = value;
+                UpdateURL();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IP)));
             }
         }
@@ -83,6 +90,7 @@ namespace VideoStream
             set
             {
                 _protocol = value;
+                UpdateURL();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Protocol)));
             }
         }
@@ -116,6 +124,29 @@ namespace VideoStream
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Info)));
             }
         }
+
+        public Process? FFmpeg
+        {
+            get => _ffmpeg;
+            set
+            {
+                _ffmpeg = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Process)));
+            }
+        }
+
+        // 获取推流地址
+        protected void UpdateURL()
+        {
+            if (_protocol == ProtoEnum.RTSP)
+            {
+                URL = "rtsp://" + _ip + ":" + RtspPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video);
+            }
+            else if (_protocol == ProtoEnum.RTMP)
+            {
+                URL = "rtmp://" + _ip + ":" + RtmpPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video);
+            }
+        }
     }
 
     // 视频编码格式
@@ -128,11 +159,11 @@ namespace VideoStream
 
     public class VideoInfo
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public double FrameRate { get; set; }
-        public double Time { get; set; }
-
-        public EncodeType Encoder { get; set; }
+        public string? VideoPath { get; set; }            // 文件名,含绝对路径
+        public int Width { get; set; }                    // 视频宽度
+        public int Height { get; set; }                   // 视频高度
+        public double FrameRate { get; set; }             // 帧率
+        public double Duration { get; set; }              // 视频时长
+        public EncodeType Encoder { get; set; }           // 编码格式
     }
 }

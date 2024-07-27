@@ -101,23 +101,31 @@
             <!-- 表格每一列数据 -->
             <DataGrid.Columns>
                 <!-- 序号 -->
-                <DataGridTextColumn Header="序号" Width="50" IsReadOnly="True"
-                                    Binding="{Binding ID, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="序号" Width="50" IsReadOnly="True" Binding="{Binding ID, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- 视频 -->
-                <DataGridTextColumn Header="视频" Width="*"
-                                    Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="视频" Width="*" Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- URL -->
-                <DataGridTextColumn Header="URL" Width="1.2*"
-                                    Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="URL" Width="1.5*" Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- 本机IP -->
-                <DataGridComboBoxColumn x:Name="LocalIP" 
-                                        Header="本机IP" 
-                                        Width="110" 
-                                        IsReadOnly="False" 
-                                        SelectedItemBinding="{Binding Path=IP}"/>
+                <DataGridComboBoxColumn x:Name="LocalIP" Header="本机IP" Width="110" IsReadOnly="False">
+                    <DataGridComboBoxColumn.ElementStyle>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="SelectedValue" Value="{Binding Path=IP, UpdateSourceTrigger=PropertyChanged}" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="SelectedValue" Value="{Binding Path=IP, UpdateSourceTrigger=PropertyChanged}" />
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
 
                 <!-- 流媒体协议: RTSP/RTMP -->
                 <DataGridComboBoxColumn Header="流媒体" Width="75" IsReadOnly="False">
@@ -139,7 +147,8 @@
                     </DataGridComboBoxColumn.EditingElementStyle>
                 </DataGridComboBoxColumn>
 
-                <!-- 传输协议: TCP/IP -->
+                <!-- 传输协议: TCP/UDP -->
+                <!--
                 <DataGridComboBoxColumn Header="传输" Width="70" IsReadOnly="False">
                     <DataGridComboBoxColumn.ElementStyle>
                         <Style TargetType="ComboBox">
@@ -157,11 +166,10 @@
                             <Setter Property="VerticalContentAlignment" Value="Center" />
                         </Style>
                     </DataGridComboBoxColumn.EditingElementStyle>
-                </DataGridComboBoxColumn>
+                </DataGridComboBoxColumn>-->
 
                 <!-- 状态 -->
-                <DataGridTextColumn Header="状态" Width="70" IsReadOnly="True"
-                                    Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="状态" Width="70" IsReadOnly="True" Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!--推流/STOP -->
                 <DataGridTemplateColumn Header="操作" Width="80">
