@@ -1,4 +1,4 @@
-﻿using FFmpeg.AutoGen;
+﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -50,7 +50,7 @@ namespace VideoStream
             mediamtx = Process.Start(startInfo);
             if (mediamtx == null)
             {
-                MessageBox.Show("无法启动Mediamtx进程!");
+                MessageBox.Show("无法启动推流服务");
             }
         }
 
@@ -76,34 +76,102 @@ namespace VideoStream
                     if (state == StateEnum.Init || state == StateEnum.Stop)
                     {
                         // 推流
-                        if (GetFFmpegParams(item) is string param)
-                        {
-                            ProcessStartInfo startInfo = new ProcessStartInfo("ffmpeg.exe");
-                            startInfo.CreateNoWindow = true;
-                            startInfo.UseShellExecute = false;
-                            startInfo.RedirectStandardOutput = true;
-                            startInfo.Arguments = param;
-
-                            item.FFmpeg = Process.Start(startInfo);
-                            if (item.FFmpeg == null)
-                            {
-                                MessageBox.Show("无法启动ffmpeg推流");
-                            }
-                            else
-                            {
-                                item.State = StateEnum.Running;
-                                button.Content = "Stop";
-                            }
-                        }
+                        StartStream(item);
                     }
                     else if (state == StateEnum.Running)
                     {
                         // Stop
-                        item.FFmpeg?.Kill();
-                        item.FFmpeg = null;
+                        StopStream(item);
+                    }
+                }
+            }
+        }
 
-                        item.State = StateEnum.Stop;
-                        button.Content = "推流";
+        // 推流
+        private void StartStream(StreamItem item)
+        {
+            if (GetFFmpegParams(item) is string param)
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo("ffmpeg.exe");
+                startInfo.CreateNoWindow = true;
+                startInfo.UseShellExecute = false;
+                startInfo.RedirectStandardOutput = true;
+                startInfo.Arguments = param;
+
+                try
+                {
+                    item.FFmpeg = new Process
+                    {
+                        StartInfo = startInfo,
+                        EnableRaisingEvents = true
+                    };
+
+                    item.FFmpeg.Exited += new EventHandler(FFmpeg_Exited);
+                    item.FFmpeg.Start();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(Path.GetFileName(item.Video) + "\nException: " + e.ToString(), "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var aaa = item.FFmpeg.MainModule;
+
+                if (item.FFmpeg == null)
+                {
+                    MessageBox.Show("无法启动ffmpeg推流进程", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    item.State = StateEnum.Running;
+                    item.NextState = "Stop";
+                }
+            }
+        }
+
+        private void StopStream(StreamItem item)
+        {
+            item.FFmpeg?.Kill();
+            item.FFmpeg = null;
+            item.State = StateEnum.Stop;
+            item.NextState = "推流";
+        }
+
+        // 全部开始
+        private void StartStreamAll_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].State == StateEnum.Init || items[i].State == StateEnum.Stop)
+                {
+                    StartStream(items[i]);
+                }
+            }
+        }
+
+        // 全部开始
+        private void StopStreamAll_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].State == StateEnum.Running)
+                {
+                    StopStream(items[i]);
+                }
+            }
+        }
+
+        // 推流进程结束/异常退出
+        private void FFmpeg_Exited(object? sender, EventArgs e)
+        {
+            if (sender is Process process)
+            {
+                foreach (var item in items)
+                {
+                    if (item.FFmpeg != null && item.FFmpeg.Id == process.Id)
+                    {
+                        StopStream(item);
+                        MessageBox.Show("推流进程异常:\n" + item.Video, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
             }
@@ -117,6 +185,10 @@ namespace VideoStream
                 // 获取当前行数据
                 if (button.DataContext is StreamItem item)
                 {
+                    if (item.FFmpeg != null)
+                    {
+                        StopStream(item);
+                    }
                     items.Remove(item);
 
                     // update index
@@ -128,9 +200,19 @@ namespace VideoStream
             }
         }
 
-        private void PushAll_Click(object sender, RoutedEventArgs e)
+        // 导入视频
+        private void ImportVideo_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Push All");
+            var openFileDialog = new OpenFileDialog
+            {
+                Multiselect = true,
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string[] files = openFileDialog.FileNames;
+                ImportVideos(files);
+            }
         }
 
         // 导入本地视频
@@ -140,21 +222,32 @@ namespace VideoStream
             var files = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (files != null)
             {
-                foreach (var file in files)
+                ImportVideos(files);
+            }
+        }
+
+        private void ImportVideos(string[] files)
+        {
+            foreach (var file in files)
+            {
+                if (file.Contains(' '))
                 {
-                    StreamItem item = new() 
-                    {
-                        RtspPort = rtspPort,
-                        RtmpPort = rtmpPort
-                    };
-
-                    item.Video = Path.GetFileName(file); ;
-                    item.Info = (new VideoProbe(file)).info();
-                    item.ID = items.Count + 1;
-                    item.IP = ips.Count > 0 ? ips[0] : null;
-
-                    items.Add(item);
+                    MessageBox.Show(Path.GetFileName(file) + "\n文件名中含有空格!", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    continue;
                 }
+
+                StreamItem item = new()
+                {
+                    RtspPort = rtspPort,
+                    RtmpPort = rtmpPort
+                };
+
+                item.Video = Path.GetFileName(file); ;
+                item.Info = (new VideoProbe(file)).info();
+                item.ID = items.Count + 1;
+                item.IP = ips.Count > 0 ? ips[0] : null;
+
+                items.Add(item);
             }
         }
 
@@ -164,11 +257,11 @@ namespace VideoStream
             string? param = null;
             if (item.Protocol == ProtoEnum.RTSP)
             {
-                param = "-re -stream_loop -1 -i " + item?.Info?.VideoPath + " " + "-c copy -f rtsp -rtsp_transport tcp rtsp://" + item?.IP + ":" + item?.RtspPort + "/" + Path.GetFileNameWithoutExtension(item?.Info?.VideoPath);
+                param = "-re -stream_loop -1 -i " + item?.Info?.VideoPath + " " + "-c copy -f rtsp -rtsp_transport tcp " + item?.GetStreamURL();
             }
             else if (item.Protocol == ProtoEnum.RTMP)
             {
-                param = "-re -stream_loop -1 -i " + item?.Info?.VideoPath + " " + "-c copy -f flv rtmp://" + item?.IP + ":" + item?.RtmpPort + "/" + Path.GetFileNameWithoutExtension(item?.Info?.VideoPath);
+                param = "-re -stream_loop -1 -i " + item?.Info?.VideoPath + " " + "-c copy -f flv " + item?.GetStreamURL();
             }
 
             return param;

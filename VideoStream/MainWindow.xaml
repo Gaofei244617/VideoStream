@@ -26,24 +26,26 @@
         <!-- 菜单栏 -->
         <Menu x:Name="menu" VerticalAlignment="Top">
             <MenuItem Header="操作">
-                <MenuItem Header="全部开始" Click="PushAll_Click">
+                <MenuItem Header="全部开始" Click="StartStreamAll_Click">
                     <MenuItem.Icon>
                         <Image Source="icon/start.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="全部停止">
+                <MenuItem Header="全部停止" Click="StopStreamAll_Click">
                     <MenuItem.Icon>
                         <Image Source="icon/stop.png" />
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="导入本地视频">
-                    <MenuItem.Icon>
-                        <Image Source="icon/video.png" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="拉流">
                     <MenuItem.Icon>
                         <Image Source="icon/pull.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="文件">
+                <MenuItem Header="导入本地视频" Click="ImportVideo_Click">
+                    <MenuItem.Icon>
+                        <Image Source="icon/video.png" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -169,13 +171,13 @@
                 </DataGridComboBoxColumn>-->
 
                 <!-- 状态 -->
-                <DataGridTextColumn Header="状态" Width="70" IsReadOnly="True" Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="状态" Width="80" IsReadOnly="True" Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!--推流/STOP -->
                 <DataGridTemplateColumn Header="操作" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="推流" HorizontalAlignment="Stretch" Click="VideoStream_Click" />
+                            <Button Content="{Binding Path=NextState, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" Click="VideoStream_Click" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

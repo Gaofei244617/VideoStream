@@ -37,6 +37,7 @@ namespace VideoStream
         private ProtoEnum _protocol = ProtoEnum.RTSP;          //
         private TransEnum _transProto = TransEnum.TCP;         //
         private StateEnum _state = StateEnum.Init;             //
+        private string _nextState = "推流";                    //
         private VideoInfo? _info;                              //
         private Process? _ffmpeg = null;                       //
         public int RtspPort { set; get; }                      //
@@ -115,6 +116,16 @@ namespace VideoStream
             }
         }
 
+        public string NextState
+        {
+            get => _nextState;
+            set
+            {
+                _nextState = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NextState)));
+            }
+        }
+
         public VideoInfo? Info
         {
             get => _info;
@@ -135,17 +146,25 @@ namespace VideoStream
             }
         }
 
-        // 获取推流地址
-        protected void UpdateURL()
-        {
+        public string? GetStreamURL()
+        { 
+            string? url = null;
             if (_protocol == ProtoEnum.RTSP)
             {
-                URL = "rtsp://" + _ip + ":" + RtspPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video);
+                url = "rtsp://" + _ip + ":" + RtspPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video)?.Replace(" ", "");
             }
             else if (_protocol == ProtoEnum.RTMP)
             {
-                URL = "rtmp://" + _ip + ":" + RtmpPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video);
+                url = "rtmp://" + _ip + ":" + RtmpPort.ToString() + "/" + Path.GetFileNameWithoutExtension(_video)?.Replace(" ", "");
             }
+
+            return url;
+        }
+
+        // 获取推流地址
+        protected void UpdateURL()
+        {
+            URL = GetStreamURL();
         }
     }
 
