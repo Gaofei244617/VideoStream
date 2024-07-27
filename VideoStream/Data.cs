@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Controls;
+using System.Xml.Linq;
 
 namespace VideoStream
 {
@@ -31,17 +33,17 @@ namespace VideoStream
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private int _id = 0;                                   //
-        private string? _video;                                //
-        private string? _url;                                  //
-        private string? _ip;                                   //
-        private ProtoEnum _protocol = ProtoEnum.RTSP;          //
-        private TransEnum _transProto = TransEnum.TCP;         //
-        private StateEnum _state = StateEnum.Init;             //
-        private string _nextState = "推流";                    //
-        private VideoInfo? _info;                              //
-        private Process? _ffmpeg = null;                       //
-        public int RtspPort { set; get; }                      //
-        public int RtmpPort { set; get; }                      //
+        private string? _video;                                // 视频名(不含路径)
+        private string? _url;                                  // 推流地址
+        private string? _ip;                                   // 本机IP
+        private ProtoEnum _protocol = ProtoEnum.RTSP;          // 流媒体协议(RTSP/RTMP)
+        private TransEnum _transProto = TransEnum.TCP;         // 传输协议
+        private StateEnum _state = StateEnum.Init;             // 推流状态
+        private string _nextState = "推流";                    // 下一操作状态
+        private VideoInfo? _info;                              // 视频信息
+        private Process? _ffmpeg = null;                       // ffmpeg推流句柄
+        public int RtspPort { set; get; }                      // rtsp端口号
+        public int RtmpPort { set; get; }                      // rtmp端口号
 
         public int ID
         {
@@ -198,5 +200,10 @@ namespace VideoStream
         public double FrameRate { get; set; }             // 帧率
         public double Duration { get; set; }              // 视频时长
         public EncodeType Encoder { get; set; }           // 编码格式
+
+        public override string ToString()
+        {
+            return $"文件: {VideoPath} \n画面: {Width}x{Height} \n帧率: {FrameRate} fps \n时长: {Duration}秒 \n编码格式: {Encoder}";
+        }
     }
 }

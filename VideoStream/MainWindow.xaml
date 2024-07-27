@@ -106,7 +106,15 @@
                 <DataGridTextColumn Header="序号" Width="50" IsReadOnly="True" Binding="{Binding ID, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- 视频 -->
-                <DataGridTextColumn Header="视频" Width="*" Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="视频" Width="*" Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="ToolTip" Value="{Binding Info}"/>
+                            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
 
                 <!-- URL -->
                 <DataGridTextColumn Header="URL" Width="1.5*" Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
