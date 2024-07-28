@@ -95,6 +95,136 @@ namespace VideoStream
             }
         }
 
+        // 删除button
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                // 获取当前行数据
+                if (button.DataContext is StreamItem item)
+                {
+                    if (item.FFmpeg != null)
+                    {
+                        StopStream(item);
+                    }
+                    items.Remove(item);
+
+                    // update index
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        items[i].ID = i + 1;
+                    }
+                }
+            }
+        }
+
+        // 菜单栏: 全部开始
+        private void StartStreamAll_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].State == StateEnum.Init || items[i].State == StateEnum.Stop)
+                {
+                    StartStream(items[i]);
+                }
+            }
+        }
+
+        // 菜单栏: 全部停止
+        private void StopStreamAll_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].State == StateEnum.Running)
+                {
+                    StopStream(items[i]);
+                }
+            }
+        }
+
+        // 菜单栏: 拉流
+        private void PullStream_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new PullStreamWindow
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner, // 设置新窗口在父窗口中居中
+                Owner = this // 设置父窗口
+            };
+
+            win.Show();
+        }
+
+        // 菜单栏: 导入视频
+        private void ImportVideo_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Multiselect = true,
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string[] files = openFileDialog.FileNames;
+                ImportVideos(files);
+            }
+        }
+
+        // 推流进程结束/异常退出
+        private void FFmpeg_Exited(object? sender, EventArgs e)
+        {
+            if (sender is Process process)
+            {
+                foreach (var item in items)
+                {
+                    if (item.FFmpeg != null && item.FFmpeg.Id == process.Id)
+                    {
+                        StopStream(item);
+                        MessageBox.Show("推流进程异常:\n" + item.Video, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+            }
+        }
+
+        // 拖拽导入视频
+        private void File_Drop(object sender, DragEventArgs e)
+        {
+            // 获取拖拽进来的文件列表
+            var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (files != null)
+            {
+                ImportVideos(files);
+            }
+        }
+
+        // 导入视频
+        private void ImportVideos(string[] files)
+        {
+            foreach (var file in files)
+            {
+                if (file.Contains(' '))
+                {
+                    string msg = "文件名中含有空格: " + Path.GetFileName(file);
+                    Log.Warning(msg);
+                    MessageBox.Show(msg, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    continue;
+                }
+
+                StreamItem item = new()
+                {
+                    RtspPort = rtspPort,
+                    RtmpPort = rtmpPort
+                };
+
+                item.Video = Path.GetFileName(file); ;
+                item.Info = (new VideoProbe(file)).info();
+                item.ID = items.Count + 1;
+                item.IP = ips.Count > 0 ? ips[0] : null;
+
+                items.Add(item);
+                Log.Information("导入视频: {0}", file);
+            }
+        }
+
         // 推流
         private void StartStream(StreamItem item)
         {
@@ -137,141 +267,13 @@ namespace VideoStream
             }
         }
 
+        // 停止推流
         private void StopStream(StreamItem item)
         {
             item.FFmpeg?.Kill();
             item.FFmpeg = null;
             item.State = StateEnum.Stop;
             item.NextState = "推流";
-        }
-
-        // 全部开始
-        private void StartStreamAll_Click(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].State == StateEnum.Init || items[i].State == StateEnum.Stop)
-                {
-                    StartStream(items[i]);
-                }
-            }
-        }
-
-        // 全部开始
-        private void StopStreamAll_Click(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].State == StateEnum.Running)
-                {
-                    StopStream(items[i]);
-                }
-            }
-        }
-
-        // 拉流
-        private void PullStream_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new PullStreamWindow
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, // 设置新窗口在父窗口中居中
-                Owner = this // 设置父窗口
-            };
-
-            win.Show();
-        }
-
-        // 推流进程结束/异常退出
-        private void FFmpeg_Exited(object? sender, EventArgs e)
-        {
-            if (sender is Process process)
-            {
-                foreach (var item in items)
-                {
-                    if (item.FFmpeg != null && item.FFmpeg.Id == process.Id)
-                    {
-                        StopStream(item);
-                        MessageBox.Show("推流进程异常:\n" + item.Video, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                }
-            }
-        }
-
-        // 删除button
-        private void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                // 获取当前行数据
-                if (button.DataContext is StreamItem item)
-                {
-                    if (item.FFmpeg != null)
-                    {
-                        StopStream(item);
-                    }
-                    items.Remove(item);
-
-                    // update index
-                    for (int i = 0; i < items.Count; i++)
-                    {
-                        items[i].ID = i + 1;
-                    }
-                }
-            }
-        }
-
-        // 导入视频
-        private void ImportVideo_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                Multiselect = true,
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string[] files = openFileDialog.FileNames;
-                ImportVideos(files);
-            }
-        }
-
-        // 导入本地视频
-        private void File_Drop(object sender, DragEventArgs e)
-        {
-            // 获取拖拽进来的文件列表
-            var files = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (files != null)
-            {
-                ImportVideos(files);
-            }
-        }
-
-        private void ImportVideos(string[] files)
-        {
-            foreach (var file in files)
-            {
-                if (file.Contains(' '))
-                {
-                    string msg = "文件名中含有空格: " + Path.GetFileName(file);
-                    Log.Warning(msg);
-                    MessageBox.Show(msg, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    continue;
-                }
-
-                StreamItem item = new()
-                {
-                    RtspPort = rtspPort,
-                    RtmpPort = rtmpPort
-                };
-
-                item.Video = Path.GetFileName(file); ;
-                item.Info = (new VideoProbe(file)).info();
-                item.ID = items.Count + 1;
-                item.IP = ips.Count > 0 ? ips[0] : null;
-
-                items.Add(item);
-                Log.Information("导入视频: {0}", file);
-            }
         }
 
         // ffmpeg推流参数

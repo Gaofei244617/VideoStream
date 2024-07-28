@@ -55,9 +55,9 @@
                         <Image Source="icon/import.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="导出配置">
+                <MenuItem Header="导出配置" Click="ExportConfig_Click">
                     <MenuItem.Icon>
-                        <Image Source="icon/export.png" />
+                        <Image Source="icon/export.png"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
