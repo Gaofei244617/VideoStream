@@ -1,10 +1,12 @@
-﻿using Microsoft.Win32;
+﻿using Csv;
+using Microsoft.Win32;
 using Serilog;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using YamlDotNet.Serialization;
@@ -166,6 +168,72 @@ namespace VideoStream
             {
                 string[] files = openFileDialog.FileNames;
                 ImportVideos(files);
+            }
+        }
+
+        // 菜单栏: 导入配置
+        private void ImportConfig_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Title = "导入配置",
+                Multiselect = false,
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string fileName = openFileDialog.FileName;
+                var csv = File.ReadAllText(fileName);
+
+                foreach (var line in CsvReader.ReadFromText(csv))
+                {
+                    string video = line["Video"];
+                    string URL = line["URL"];
+                    string ip = line["IP"];
+                    ProtoEnum proto = (ProtoEnum)Enum.Parse(typeof(ProtoEnum), line["Protocal"]);
+
+                    StreamItem item = new StreamItem()
+                    {
+                        Video = Path.GetFileName(video),
+                        URL = URL,
+                        IP = ip,
+                        Protocol = proto,
+                        Info = (new VideoProbe(video)).info(),
+                        ID = items.Count + 1
+                    };
+                    items.Add(item);
+                }
+            }
+        }
+
+        // 菜单栏: 导出配置
+        private void ExportConfig_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "导出配置",
+                Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                // 用户选择了文件并点击了保存
+                string fileName = saveFileDialog.FileName;
+
+                string[] columnNames = ["Video", "URL", "IP", "Protocal"];
+                List<string[]> rows = new List<string[]>();
+                foreach (var item in items)
+                {
+                    rows.Add([item.Info.VideoPath, item.URL, item.IP, item.Protocol.ToString()]);
+                }
+
+                // 写入csv文件
+                string? csv = CsvWriter.WriteToText(columnNames, rows, ',');
+                File.WriteAllText(fileName, csv);
+
+                Log.Information("导出配置文件: {0}", fileName);
+                MessageBox.Show("配置文件导出成功");
             }
         }
 

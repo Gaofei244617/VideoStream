@@ -23,6 +23,7 @@ namespace VideoStream
         {
             SaveFileDialog saveFileDialog = new()
             {
+                Title = "保存视频流",
                 Filter = "Video files (*.mp4)|*.mp4|All files (*.*)|*.*",
                 FilterIndex = 1
             };
