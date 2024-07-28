@@ -183,7 +183,9 @@ namespace VideoStream
             if (openFileDialog.ShowDialog() == true)
             {
                 string fileName = openFileDialog.FileName;
-                var csv = File.ReadAllText(fileName);
+
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance); // 使用GBK编码格式
+                var csv = File.ReadAllText(fileName, Encoding.GetEncoding("GBK"));
 
                 foreach (var line in CsvReader.ReadFromText(csv))
                 {
@@ -230,7 +232,9 @@ namespace VideoStream
 
                 // 写入csv文件
                 string? csv = CsvWriter.WriteToText(columnNames, rows, ',');
-                File.WriteAllText(fileName, csv);
+
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance); // 使用GBK编码格式
+                File.WriteAllText(fileName, csv, Encoding.GetEncoding("GBK"));
 
                 Log.Information("导出配置文件: {0}", fileName);
                 MessageBox.Show("配置文件导出成功");
