@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Video Stream"
         Height="550"
-        Width="900">
+        Width="920">
 
     <Window.Resources>
         <!-- DataGrid 标题栏字体加粗 -->
@@ -42,7 +42,7 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="文件">
+            <MenuItem Header="视频">
                 <MenuItem Header="导入本地视频" Click="ImportVideo_Click">
                     <MenuItem.Icon>
                         <Image Source="icon/video.png" />
@@ -50,7 +50,7 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="配置">
-                <MenuItem Header="导入配置">
+                <MenuItem Header="导入配置" Click="ImportConfig_Click">
                     <MenuItem.Icon>
                         <Image Source="icon/import.png" />
                     </MenuItem.Icon>
@@ -118,7 +118,7 @@
                 </DataGridTextColumn>
 
                 <!-- URL -->
-                <DataGridTextColumn Header="URL" Width="1.5*" Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="URL" Width="1.6*" Binding="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
 
                 <!-- 本机IP -->
                 <DataGridComboBoxColumn x:Name="LocalIP" Header="本机IP" Width="110" IsReadOnly="False">
