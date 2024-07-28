@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Serilog;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -16,6 +17,8 @@ namespace VideoStream
         public MainWindow()
         {
             InitializeComponent();
+            Log.Information("Init MainWindow");
+
             this.Closing += Window_Closing;
 
             this.VideoTable.ItemsSource = items;
@@ -29,9 +32,11 @@ namespace VideoStream
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
                     ips.Add(ip.ToString());
+                    Log.Information("本机IP: {0}", ip.ToString());
                 }
             }
             ips.Add("127.0.0.1");
+            Log.Information("本机IP: 127.0.0.1");
 
             // 解析mediamtx配置文件
             string content = File.ReadAllText("mediamtx.yml");
@@ -40,6 +45,7 @@ namespace VideoStream
 
             rtspPort = int.Parse(yamlObject["rtspAddress"].Split(':')[1]);
             rtmpPort = int.Parse(yamlObject["rtmpAddress"].Split(':')[1]);
+            Log.Information("RTSP port: {0}, RTMP port: {1}", rtspPort, rtmpPort);
 
             // 启动推流服务器
             ProcessStartInfo startInfo = new ProcessStartInfo("mediamtx.exe");
@@ -50,8 +56,10 @@ namespace VideoStream
             mediamtx = Process.Start(startInfo);
             if (mediamtx == null)
             {
+                Log.Error("无法启动推流服务");
                 MessageBox.Show("无法启动推流服务");
             }
+            Log.Information("启动mediamtx服务");
         }
 
         // 关闭窗口
@@ -108,6 +116,7 @@ namespace VideoStream
 
                     item.FFmpeg.Exited += new EventHandler(FFmpeg_Exited);
                     item.FFmpeg.Start();
+                    Log.Information("start ffmpeg {0}", param);
                 }
                 catch (Exception e)
                 {
@@ -115,10 +124,9 @@ namespace VideoStream
                     return;
                 }
 
-                var aaa = item.FFmpeg.MainModule;
-
                 if (item.FFmpeg == null)
                 {
+                    Log.Error("无法启动ffmpeg推流进程: {0}", item?.Info?.VideoPath);
                     MessageBox.Show("无法启动ffmpeg推流进程", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
@@ -244,7 +252,9 @@ namespace VideoStream
             {
                 if (file.Contains(' '))
                 {
-                    MessageBox.Show(Path.GetFileName(file) + "\n文件名中含有空格!", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    string msg = "文件名中含有空格: " + Path.GetFileName(file);
+                    Log.Warning(msg);
+                    MessageBox.Show(msg, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     continue;
                 }
 
@@ -260,6 +270,7 @@ namespace VideoStream
                 item.IP = ips.Count > 0 ? ips[0] : null;
 
                 items.Add(item);
+                Log.Information("导入视频: {0}", file);
             }
         }
 
