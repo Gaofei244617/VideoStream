@@ -1,0 +1,35 @@
+﻿<Window x:Class="VideoStream.PullStreamWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VideoStream"
+        mc:Ignorable="d"
+        Title="Pull Stream"
+        Height="110"
+        Width="500">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Label Content="取流地址:" Grid.Row="0"
+               HorizontalAlignment="Stretch"
+               HorizontalContentAlignment="Left"
+               BorderThickness="0" />
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" Height="20" Margin="3" />
+            <Button Grid.Column="1" Content="播放" Click="Play_Click"/>
+            <Button Grid.Column="2" Content="保存" Click="SaveVideo_Click" />
+        </Grid>
+    </Grid>
+</Window>

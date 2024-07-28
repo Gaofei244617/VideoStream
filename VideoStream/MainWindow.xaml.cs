@@ -161,6 +161,18 @@ namespace VideoStream
             }
         }
 
+        // 拉流
+        private void PullStream_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new PullStreamWindow
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner, // 设置新窗口在父窗口中居中
+                Owner = this // 设置父窗口
+            };
+
+            win.Show();
+        }
+
         // 推流进程结束/异常退出
         private void FFmpeg_Exited(object? sender, EventArgs e)
         {

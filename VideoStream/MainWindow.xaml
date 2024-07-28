@@ -36,7 +36,7 @@
                         <Image Source="icon/stop.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="拉流">
+                <MenuItem Header="拉流" Click="PullStream_Click">
                     <MenuItem.Icon>
                         <Image Source="icon/pull.png" />
                     </MenuItem.Icon>
@@ -109,9 +109,10 @@
                 <DataGridTextColumn Header="视频" Width="*" Binding="{Binding Video, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="ToolTip" Value="{Binding Info}"/>
-                            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="ToolTip" Value="{Binding Info}" />
+                            <Setter Property="ToolTipService.InitialShowDelay" Value="0" />
                         </Style>
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
