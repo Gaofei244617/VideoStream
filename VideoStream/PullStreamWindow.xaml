@@ -15,7 +15,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Label Content="取流地址:" Grid.Row="0"
+        <Label Content="取流地址:" 
+               Grid.Row="0"
                HorizontalAlignment="Stretch"
                HorizontalContentAlignment="Left"
                BorderThickness="0" />
@@ -27,9 +28,9 @@
                 <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0" Height="20" Margin="3" />
+            <TextBox x:Name="url" Grid.Column="0" Height="20" Margin="3" />
             <Button Grid.Column="1" Content="播放" Click="Play_Click"/>
-            <Button Grid.Column="2" Content="保存" Click="SaveVideo_Click" />
+            <Button x:Name="SaveBtn" Grid.Column="2" Content="保存" Click="SaveVideo_Click" />
         </Grid>
     </Grid>
 </Window>
