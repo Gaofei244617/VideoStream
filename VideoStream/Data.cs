@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿using Serilog;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Controls;
-using System.Xml.Linq;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace VideoStream
 {
@@ -20,14 +21,6 @@ namespace VideoStream
         UDP
     }
 
-    // 推流状态
-    public enum StateEnum
-    {
-        Init,
-        Running,
-        Stop
-    }
-
     public class StreamItem : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -38,10 +31,20 @@ namespace VideoStream
         private string? _ip;                                   // 本机IP
         private ProtoEnum _protocol = ProtoEnum.RTSP;          // 流媒体协议(RTSP/RTMP)
         private TransEnum _transProto = TransEnum.TCP;         // 传输协议
-        private StateEnum _state = StateEnum.Init;             // 推流状态
+        private string _state = "Stop";                        // 推流状态
         private string _nextState = "推流";                    // 下一操作状态
         private VideoInfo? _info;                              // 视频信息
         private Process? _ffmpeg = null;                       // ffmpeg推流句柄
+
+        public StreamItem()
+        {
+            Timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            Timer.Tick += Timer_Tick;
+        }
+
         public int RtspPort { set; get; }                      // rtsp端口号
         public int RtmpPort { set; get; }                      // rtmp端口号
 
@@ -108,7 +111,7 @@ namespace VideoStream
             }
         }
 
-        public StateEnum State
+        public string State
         {
             get => _state;
             set
@@ -148,8 +151,8 @@ namespace VideoStream
             }
         }
 
-        public string? GetStreamURL()
-        { 
+        private string? GetStreamURL()
+        {
             string? url = null;
             string validChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"; // URL中允许出现的字符
 
@@ -181,6 +184,95 @@ namespace VideoStream
         protected void UpdateURL()
         {
             URL = GetStreamURL();
+        }
+
+        private DispatcherTimer Timer;                     // 推流计时器
+        private TimeSpan elapsedTime = TimeSpan.Zero;
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            elapsedTime += Timer.Interval;
+            State = elapsedTime.ToString("hh\\:mm\\:ss");
+        }
+
+        // 启动推流
+        public void StartStream()
+        {
+            if (GetFFmpegParams() is string param)
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo("ffmpeg.exe");
+                startInfo.CreateNoWindow = true;
+                startInfo.UseShellExecute = false;
+                startInfo.RedirectStandardOutput = true;
+                startInfo.Arguments = param;
+
+                try
+                {
+                    FFmpeg = new Process
+                    {
+                        StartInfo = startInfo,
+                        EnableRaisingEvents = true
+                    };
+
+                    FFmpeg.Exited += new EventHandler(FFmpeg_Exited);
+                    FFmpeg.Start();
+                    Timer.Start();
+                    Log.Information("start ffmpeg {0}", param);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(Path.GetFileName(Video) + "\nException: " + e.ToString(), "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (FFmpeg == null)
+                {
+                    Log.Error("无法启动ffmpeg推流进程: {0}", Info?.VideoPath);
+                    MessageBox.Show("无法启动ffmpeg推流进程", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    NextState = "Stop";
+                }
+            }
+        }
+
+        // 停止推流
+        public void StopStream()
+        {
+            FFmpeg?.Kill();
+            FFmpeg = null;
+
+            Timer.Stop();
+            elapsedTime = TimeSpan.Zero;
+            State = "Stop";
+            NextState = "推流";
+            Log.Information("结束推流: {0}", Info?.VideoPath);
+        }
+
+        // ffmpeg推流参数
+        private string? GetFFmpegParams()
+        {
+            string? param = null;
+            if (Protocol == ProtoEnum.RTSP)
+            {
+                param = "-re -stream_loop -1 -i " + Info?.VideoPath + " " + "-c copy -f rtsp -rtsp_transport tcp " + GetStreamURL();
+            }
+            else if (Protocol == ProtoEnum.RTMP)
+            {
+                param = "-re -stream_loop -1 -i " + Info?.VideoPath + " " + "-c copy -f flv " + GetStreamURL();
+            }
+
+            return param;
+        }
+
+        private void FFmpeg_Exited(object? sender, EventArgs e)
+        {
+            if (sender is Process process)
+            {
+                StopStream();
+                //MessageBox.Show("推流进程异常:\n" + Video, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 

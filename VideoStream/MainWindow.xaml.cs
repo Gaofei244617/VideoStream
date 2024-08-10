@@ -82,16 +82,16 @@ namespace VideoStream
                 // 获取当前行数据
                 if (button.DataContext is StreamItem item)
                 {
-                    StateEnum state = item.State;
-                    if (state == StateEnum.Init || state == StateEnum.Stop)
+                    string state = item.State;
+                    if (state == "Stop")
                     {
                         // 推流
-                        StartStream(item);
+                        item.StartStream();
                     }
-                    else if (state == StateEnum.Running)
+                    else
                     {
                         // Stop
-                        StopStream(item);
+                        item.StopStream();
                     }
                 }
             }
@@ -107,7 +107,7 @@ namespace VideoStream
                 {
                     if (item.FFmpeg != null)
                     {
-                        StopStream(item);
+                        item.StopStream();
                     }
                     items.Remove(item);
 
@@ -125,9 +125,9 @@ namespace VideoStream
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].State == StateEnum.Init || items[i].State == StateEnum.Stop)
+                if (items[i].State == "Stop")
                 {
-                    StartStream(items[i]);
+                    items[i].StartStream();
                 }
             }
         }
@@ -137,9 +137,9 @@ namespace VideoStream
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].State == StateEnum.Running)
+                if (items[i].State != "Stop")
                 {
-                    StopStream(items[i]);
+                    items[i].StopStream();
                 }
             }
         }
@@ -241,22 +241,6 @@ namespace VideoStream
             }
         }
 
-        // 推流进程结束/异常退出
-        private void FFmpeg_Exited(object? sender, EventArgs e)
-        {
-            if (sender is Process process)
-            {
-                foreach (var item in items)
-                {
-                    if (item.FFmpeg != null && item.FFmpeg.Id == process.Id)
-                    {
-                        StopStream(item);
-                        MessageBox.Show("推流进程异常:\n" + item.Video, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                }
-            }
-        }
-
         // 拖拽导入视频
         private void File_Drop(object sender, DragEventArgs e)
         {
@@ -295,73 +279,6 @@ namespace VideoStream
                 items.Add(item);
                 Log.Information("导入视频: {0}", file);
             }
-        }
-
-        // 推流
-        private void StartStream(StreamItem item)
-        {
-            if (GetFFmpegParams(item) is string param)
-            {
-                ProcessStartInfo startInfo = new ProcessStartInfo("ffmpeg.exe");
-                startInfo.CreateNoWindow = true;
-                startInfo.UseShellExecute = false;
-                startInfo.RedirectStandardOutput = true;
-                startInfo.Arguments = param;
-
-                try
-                {
-                    item.FFmpeg = new Process
-                    {
-                        StartInfo = startInfo,
-                        EnableRaisingEvents = true
-                    };
-
-                    item.FFmpeg.Exited += new EventHandler(FFmpeg_Exited);
-                    item.FFmpeg.Start();
-                    Log.Information("start ffmpeg {0}", param);
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(Path.GetFileName(item.Video) + "\nException: " + e.ToString(), "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (item.FFmpeg == null)
-                {
-                    Log.Error("无法启动ffmpeg推流进程: {0}", item?.Info?.VideoPath);
-                    MessageBox.Show("无法启动ffmpeg推流进程", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-                else
-                {
-                    item.State = StateEnum.Running;
-                    item.NextState = "Stop";
-                }
-            }
-        }
-
-        // 停止推流
-        private void StopStream(StreamItem item)
-        {
-            item.FFmpeg?.Kill();
-            item.FFmpeg = null;
-            item.State = StateEnum.Stop;
-            item.NextState = "推流";
-        }
-
-        // ffmpeg推流参数
-        private string? GetFFmpegParams(StreamItem item)
-        {
-            string? param = null;
-            if (item.Protocol == ProtoEnum.RTSP)
-            {
-                param = "-re -stream_loop -1 -i " + item?.Info?.VideoPath + " " + "-c copy -f rtsp -rtsp_transport tcp " + item?.GetStreamURL();
-            }
-            else if (item.Protocol == ProtoEnum.RTMP)
-            {
-                param = "-re -stream_loop -1 -i " + item?.Info?.VideoPath + " " + "-c copy -f flv " + item?.GetStreamURL();
-            }
-
-            return param;
         }
 
         // DataGrid item source
