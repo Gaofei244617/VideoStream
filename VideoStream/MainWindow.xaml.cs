@@ -50,10 +50,12 @@ namespace VideoStream
             Log.Information("RTSP port: {0}, RTMP port: {1}", rtspPort, rtmpPort);
 
             // 启动推流服务器
-            ProcessStartInfo startInfo = new ProcessStartInfo("mediamtx.exe");
-            startInfo.CreateNoWindow = true;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
+            ProcessStartInfo startInfo = new("mediamtx.exe")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
 
             mediamtx = Process.Start(startInfo);
             if (mediamtx == null)
@@ -85,13 +87,11 @@ namespace VideoStream
                     string state = item.State;
                     if (state == "Stop")
                     {
-                        // 推流
-                        item.StartStream();
+                        item.StartStream(); // 推流
                     }
                     else
                     {
-                        // Stop
-                        item.StopStream();
+                        item.StopStream(); // Stop
                     }
                 }
             }
@@ -194,13 +194,13 @@ namespace VideoStream
                     string ip = line["IP"];
                     ProtoEnum proto = (ProtoEnum)Enum.Parse(typeof(ProtoEnum), line["Protocal"]);
 
-                    StreamItem item = new StreamItem()
+                    StreamItem item = new()
                     {
                         Video = Path.GetFileName(video),
                         URL = URL,
                         IP = ip,
                         Protocol = proto,
-                        Info = (new VideoProbe(video)).info(),
+                        Info = (new VideoProbe(video)).Info(),
                         ID = items.Count + 1
                     };
                     items.Add(item);
@@ -224,7 +224,7 @@ namespace VideoStream
                 string fileName = saveFileDialog.FileName;
 
                 string[] columnNames = ["Video", "URL", "IP", "Protocal"];
-                List<string[]> rows = new List<string[]>();
+                List<string[]> rows = [];
                 foreach (var item in items)
                 {
                     rows.Add([item.Info.VideoPath, item.URL, item.IP, item.Protocol.ToString()]);
@@ -245,7 +245,7 @@ namespace VideoStream
         private void File_Drop(object sender, DragEventArgs e)
         {
             // 获取拖拽进来的文件列表
-            var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            string[]? files = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (files != null)
             {
                 ImportVideos(files);
@@ -268,13 +268,12 @@ namespace VideoStream
                 StreamItem item = new()
                 {
                     RtspPort = rtspPort,
-                    RtmpPort = rtmpPort
+                    RtmpPort = rtmpPort,
+                    Video = Path.GetFileName(file),
+                    Info = (new VideoProbe(file)).Info(),
+                    ID = items.Count + 1,
+                    IP = ips.Count > 0 ? ips[0] : null
                 };
-
-                item.Video = Path.GetFileName(file); ;
-                item.Info = (new VideoProbe(file)).info();
-                item.ID = items.Count + 1;
-                item.IP = ips.Count > 0 ? ips[0] : null;
 
                 items.Add(item);
                 Log.Information("导入视频: {0}", file);
@@ -282,14 +281,14 @@ namespace VideoStream
         }
 
         // DataGrid item source
-        private ObservableCollection<StreamItem> items = new ObservableCollection<StreamItem>();
+        private readonly ObservableCollection<StreamItem> items = [];
 
         // 本机IP
-        private ObservableCollection<string> ips = new ObservableCollection<string>();
+        private readonly ObservableCollection<string> ips = [];
 
         private int rtspPort = 0;  // RTSP流端口
         private int rtmpPort = 0;  // RTMP流端口
 
-        private Process? mediamtx = null;
+        private readonly Process? mediamtx = null;
     }
 }

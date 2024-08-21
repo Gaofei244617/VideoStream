@@ -151,13 +151,18 @@ namespace VideoStream
             }
         }
 
+        // 获取推流地址
         private string? GetStreamURL()
         {
-            string? url = null;
             string validChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"; // URL中允许出现的字符
 
-            char[] chars = Path.GetFileNameWithoutExtension(_video)?.ToCharArray();
-            Random random = new Random();
+            char[]? chars = Path.GetFileNameWithoutExtension(_video)?.ToCharArray();
+            if (chars == null)
+            {
+                return null;
+            }
+
+            Random random = new();
             for (int i = 0; i < chars.Length; i++)
             {
                 if (!validChar.Contains(chars[i]))
@@ -166,8 +171,9 @@ namespace VideoStream
                     chars[i] = validChar[n];
                 }
             }
-            string path = new string(chars);
 
+            string path = new(chars);
+            string? url = null;
             if (_protocol == ProtoEnum.RTSP)
             {
                 url = "rtsp://" + _ip + ":" + RtspPort.ToString() + "/" + path;
@@ -180,7 +186,7 @@ namespace VideoStream
             return url;
         }
 
-        // 获取推流地址
+        // 更新推流地址
         protected void UpdateURL()
         {
             URL = GetStreamURL();
@@ -200,11 +206,13 @@ namespace VideoStream
         {
             if (GetFFmpegParams() is string param)
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo("ffmpeg.exe");
-                startInfo.CreateNoWindow = true;
-                startInfo.UseShellExecute = false;
-                startInfo.RedirectStandardOutput = true;
-                startInfo.Arguments = param;
+                ProcessStartInfo startInfo = new("ffmpeg.exe")
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    Arguments = param
+                };
 
                 try
                 {
@@ -268,7 +276,7 @@ namespace VideoStream
 
         private void FFmpeg_Exited(object? sender, EventArgs e)
         {
-            if (sender is Process process)
+            if (sender is Process)
             {
                 StopStream();
                 //MessageBox.Show("推流进程异常:\n" + Video, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);

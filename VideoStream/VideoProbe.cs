@@ -81,7 +81,7 @@ namespace VideoStream
             ffmpeg.avformat_close_input(&pFormatContext);
         }
 
-        public VideoInfo info()
+        public VideoInfo Info()
         {
             return _info;
         }
