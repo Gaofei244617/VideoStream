@@ -192,7 +192,7 @@ namespace VideoStream
             URL = GetStreamURL();
         }
 
-        private DispatcherTimer Timer;                     // 推流计时器
+        private readonly DispatcherTimer Timer;             // 推流计时器
         private TimeSpan elapsedTime = TimeSpan.Zero;
 
         private void Timer_Tick(object? sender, EventArgs e)

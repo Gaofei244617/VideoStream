@@ -1,4 +1,5 @@
 ﻿using FFmpeg.AutoGen;
+using Serilog;
 using System.Windows;
 
 namespace VideoStream
@@ -7,7 +8,7 @@ namespace VideoStream
     {
         private readonly AVFormatContext* _pFormatContext;
 
-        private VideoInfo _info = new VideoInfo();
+        private readonly VideoInfo _info = new();
 
         public VideoProbe(string videoPath)
         {
@@ -22,6 +23,7 @@ namespace VideoStream
             if ((ret = ffmpeg.avformat_open_input(&pFormatContext, videoPath, null, null)) != 0)
             {
                 // 打开文件失败
+                Log.Error($"Error opening the video file: {videoPath}");
                 MessageBox.Show($"Error opening the video file: {videoPath}");
             }
 
@@ -29,6 +31,7 @@ namespace VideoStream
             if ((ret = ffmpeg.avformat_find_stream_info(pFormatContext, null)) < 0)
             {
                 // 获取流信息失败
+                Log.Error($"Error finding stream info: {ret}");
                 MessageBox.Show($"Error finding stream info: {ret}");
             }
 
@@ -46,7 +49,8 @@ namespace VideoStream
             if (videoStreamIndex == -1)
             {
                 // 没有找到视频流
-                MessageBox.Show("Not find a video stream");
+                Log.Error("Can not find a video stream");
+                MessageBox.Show("Can not find a video stream");
             }
 
             // 获取视频
